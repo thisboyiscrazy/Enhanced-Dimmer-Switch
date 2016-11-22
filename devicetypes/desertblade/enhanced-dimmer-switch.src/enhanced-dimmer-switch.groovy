@@ -136,10 +136,15 @@ def zwaveEvent(physicalgraph.zwave.commands.switchmultilevelv1.SwitchMultilevelS
 }
 
 private dimmerEvents(physicalgraph.zwave.Command cmd) {
-	def value = (cmd.value ? "on" : "off")
-	def result = [createEvent(name: "switch", value: value)]
-	if (cmd.value && cmd.value <= 100) {
-		result << createEvent(name: "level", value: cmd.value, unit: "%")
+	def value = cmd.value
+	def result = [createEvent(name: "switch", value: value ? "on" : "off")]
+	if(value) {
+		if(0 < value && value < 15) {
+			result << response([zwave.basicV1.basicSet(value: 15).format()])    
+		}
+		if(value <= 100) {
+			result << createEvent(name: "level", value: value, unit: "%")
+		}
 	}
 	return result
 }
